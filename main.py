@@ -25,11 +25,27 @@ app = FastAPI()
 # TODO complete all endpoint.
 @app.get("/reservation/by-name/{name}")
 def get_reservation_by_name(name:str):
-    pass
+    result = collection.find_one({"name":name}, {"_id":0})
+    if result != None:
+        return {
+            "status": "found",
+            "result": result
+        }
+    else:
+        raise HTTPException(404, f"Couldn't find reservation with name: {name}'")
 
-@app.get("reservation/by-table/{table}")
+@app.get("/reservation/by-table/{table}")
 def get_reservation_by_table(table: int):
-    pass
+    result = collection.find({"table_number":int(table)}, {"_id":0})
+    lst_result = list(result)
+    if len(lst_result) != 0:
+        final = json.loads(json_util.dumps(lst_result))
+        return {
+            "status": "found",
+            "result": final
+        }
+    else:
+        raise HTTPException(404, f"Couldn't find reservation with name: {table}'")
 
 @app.post("/reservation")
 def reserve(reservation : Reservation):
